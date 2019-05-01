@@ -3,58 +3,55 @@
 
 #define Steering_ID 0
 
-CAN can0(PA_11, PA_12);
+CAN can0(D10, D2); // CAN bus pins
+
 CANMessage inMsg;
 
-Servo rightServo(D4);
-Servo leftServo(D3);
+Servo rightUpper(A5);
+Servo rightLower(A6);
+Servo leftUpper(A1);
+Servo leftLower(A2);
 
-Timer timer;
-
-// Prototypes
 void enableDRS();
 void disableDRS();
 
-int main() {
+DigitalOut led(LED1);
 
+int main() {
   can0.frequency(250000);
   can0.mode(CAN::Normal);
-
-  timer.reset();
-  timer.start();
-
-  disableDRS();
-
   while (1) {
     if (can0.read(inMsg)) {
-      timer.stop();
-      timer.reset();
-      timer.start();
-
+      led = !led;
       if (inMsg.id == Steering_ID) {
-        if (inMsg.data[0] == 12) { // 0x0C
+        if (inMsg.data[0] == 12) {
           enableDRS();
-        } else if (inMsg.data[0] == 13) { // 0x0D
+        } else if (inMsg.data[0] == 13) {
           disableDRS();
         }
       }
-    }
-
-    // Bus connection broken
-    if (timer.read() > 1) {
-      disableDRS();
     }
   }
 }
 
 void enableDRS() {
-  float val = 0.4;
-  rightServo.write(1.0 - val);
-  leftServo.write(val);
+  int upperAngle = 60;
+  int lowerAngle = 40;
+
+  rightUpper.position(upperAngle);
+  leftUpper.position(180 - upperAngle);
+
+  rightLower.position(lowerAngle);
+  leftLower.position(180 - lowerAngle);
 }
 
 void disableDRS() {
-  float val = 0.0;
-  rightServo.write(1.0 - val);
-  leftServo.write(val);
+  int upperAngle = 30;
+  int lowerAngle = 22;
+
+  rightUpper.position(upperAngle);
+  leftUpper.position(180 - upperAngle);
+
+  rightLower.position(lowerAngle);
+  leftLower.position(180 - lowerAngle);
 }

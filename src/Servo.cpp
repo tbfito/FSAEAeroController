@@ -46,8 +46,8 @@ void Servo::write(float percent) {
 }
 
 void Servo::position(float degrees) {
-  float offset = _range * (degrees / _degrees);
-  _pwm.pulsewidth(0.0015 + clamp(offset, -_range, _range));
+
+  _pwm.pulsewidth_us(round(11.1111111111111111111111 * degrees + 500));
 }
 
 void Servo::calibrate(float range, float degrees) {
